@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VENUEMAX — Conference Scheduler</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600;800&display=swap");
+
+      :root {
+        --gold: #d4af37;
+        --gold-light: #f5e6b8;
+        --deep: #0a0a0f;
+        --panel: #12121a;
+        --accent: #1a1a2e;
+        --text: #e8e6e3;
+        --muted: #8a8790;
+        --success: #2ecc71;
+        --danger: #e74c3c;
+        --glow: 0 0 40px rgba(212, 175, 55, 0.25);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--deep);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        background-image:
+          radial-gradient(
+            ellipse at 20% 0%,
+            rgba(212, 175, 55, 0.08) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            ellipse at 80% 100%,
+            rgba(26, 26, 46, 0.6) 0%,
+            transparent 50%
+          );
+      }
+
+      header {
+        padding: 3.5rem 2rem 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--gold),
+          transparent
+        );
+      }
+
+      h1 {
+        font-family: "Playfair Display", serif;
+        font-weight: 900;
+        font-size: clamp(2.8rem, 6vw, 4.5rem);
+        letter-spacing: -0.02em;
+        background: linear-gradient(
+          135deg,
+          var(--gold-light) 0%,
+          var(--gold) 50%,
+          #b8860b 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.4rem;
+        text-shadow: 0 0 60px rgba(212, 175, 55, 0.3);
+      }
+
+      .tagline {
+        font-weight: 300;
+        font-size: 1.05rem;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 4rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+
+      @media (max-width: 860px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(212, 175, 55, 0.12);
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow:
+          var(--glow),
+          0 20px 50px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--gold),
+          transparent
+        );
+      }
+
+      .card h2 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.4rem;
+        color: var(--gold);
+        margin-bottom: 1.2rem;
+        font-weight: 700;
+      }
+
+      textarea {
+        width: 100%;
+        height: 160px;
+        background: var(--accent);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        border-radius: 10px;
+        color: var(--text);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 0.9rem;
+        padding: 1rem;
+        resize: vertical;
+        outline: none;
+        transition:
+          border-color 0.25s,
+          box-shadow 0.25s;
+      }
+
+      textarea:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.1rem;
+        flex-wrap: wrap;
+      }
+
+      button {
+        font-family: "Inter", sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        letter-spacing: 0.04em;
+        padding: 0.85rem 1.6rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          box-shadow 0.2s,
+          background 0.2s;
+      }
+
+      button.primary {
+        background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+        color: #0a0a0f;
+        box-shadow: 0 4px 20px rgba(212, 175, 55, 0.35);
+      }
+
+      button.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(212, 175, 55, 0.5);
+      }
+
+      button.ghost {
+        background: transparent;
+        color: var(--gold);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+      }
+
+      button.ghost:hover {
+        background: rgba(212, 175, 55, 0.08);
+      }
+
+      .result-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 220px;
+        text-align: center;
+      }
+
+      .result-number {
+        font-family: "Playfair Display", serif;
+        font-size: 5.5rem;
+        font-weight: 900;
+        line-height: 1;
+        background: linear-gradient(180deg, var(--gold-light), var(--gold));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 80px rgba(212, 175, 55, 0.4);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .result-label {
+        margin-top: 0.6rem;
+        font-size: 0.85rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .timeline {
+        margin-top: 1.5rem;
+        width: 100%;
+      }
+
+      .timeline-bar {
+        position: relative;
+        height: 48px;
+        background: var(--accent);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .interval {
+        position: absolute;
+        top: 8px;
+        height: 32px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #0a0a0f;
+        transition:
+          opacity 0.3s,
+          transform 0.3s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 6px;
+      }
+
+      .interval.selected {
+        background: linear-gradient(135deg, var(--gold), #c9a227);
+        box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+        z-index: 2;
+      }
+
+      .interval.rejected {
+        background: rgba(231, 76, 60, 0.35);
+        color: #ffb3b3;
+        z-index: 1;
+      }
+
+      .legend {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.9rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .legend span {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .dot.gold {
+        background: var(--gold);
+      }
+      .dot.red {
+        background: rgba(231, 76, 60, 0.7);
+      }
+
+      .examples {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .example-chip {
+        background: var(--accent);
+        border: 1px solid rgba(212, 175, 55, 0.15);
+        border-radius: 999px;
+        padding: 0.5rem 1.1rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          background 0.2s;
+        color: var(--muted);
+      }
+
+      .example-chip:hover {
+        border-color: var(--gold);
+        color: var(--gold-light);
+        background: rgba(212, 175, 55, 0.06);
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.75rem;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+
+      .error {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.6rem;
+        min-height: 1.2em;
+      }
+
+      .pulse {
+        animation: pulse 0.6s ease;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.08);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>VENUEMAX</h1>
+      <p class="tagline">Maximum Non-Overlapping Conference Bookings</p>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Booking Requests</h2>
+        <textarea
+          id="input"
+          placeholder="[[1, 4], [2, 5], [5, 7], [3, 6], [8, 10]]"
+        ></textarea>
+        <div class="error" id="error"></div>
+        <div class="btn-row">
+          <button class="primary" id="run">Compute Maximum</button>
+          <button class="ghost" id="clear">Clear</button>
+        </div>
+        <div class="examples" style="margin-top: 1.2rem">
+          <div class="example-chip" data-ex="[[1,4],[2,5],[5,7],[3,6],[8,10]]">
+            Example 1 → 3
+          </div>
+          <div class="example-chip" data-ex="[[0,2],[1,3],[2,4],[3,5]]">
+            Example 2 → 2
+          </div>
+          <div class="example-chip" data-ex="[[1,2],[1,3],[2,3]]">
+            Same start
+          </div>
+          <div class="example-chip" data-ex="[[5,10],[1,3],[4,6],[7,9]]">
+            Scattered
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Maximum Schedule</h2>
+        <div class="result-panel">
+          <div class="result-number" id="result">—</div>
+          <div class="result-label">non-overlapping events</div>
+        </div>
+        <div class="timeline" id="timeline-wrap" style="display: none">
+          <div class="timeline-bar" id="timeline"></div>
+          <div class="legend">
+            <span>
+              <span class="dot gold"></span>
+              Selected
+            </span>
+            <span>
+              <span class="dot red"></span>
+              Rejected
+            </span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Greedy earliest-finish · O(n log n) · Built for decision makers who demand
+      precision
+    </footer>
+
+    <script>
+      function maxNonOverlapping(bookings) {
+        if (!bookings || bookings.length === 0)
+          return { count: 0, selected: [], rejected: [] };
+        const sorted = bookings
+          .map((b, i) => ({ start: b[0], end: b[1], idx: i }))
+          .sort((a, b) => a.end - b.end || a.start - b.start);
+
+        let count = 0;
+        let lastEnd = -1;
+        const selected = [];
+        const rejected = [];
+
+        for (const item of sorted) {
+          if (item.start >= lastEnd) {
+            count++;
+            lastEnd = item.end;
+            selected.push(item);
+          } else {
+            rejected.push(item);
+          }
+        }
+        return { count, selected, rejected, sorted };
+      }
+
+      function parseInput(raw) {
+        const cleaned = raw.trim().replace(/\s+/g, "");
+        if (!cleaned) throw new Error("Empty input");
+        const parsed = JSON.parse(cleaned);
+        if (!Array.isArray(parsed))
+          throw new Error("Must be an array of pairs");
+        for (const pair of parsed) {
+          if (!Array.isArray(pair) || pair.length !== 2)
+            throw new Error("Each booking must be [start, end]");
+          if (typeof pair[0] !== "number" || typeof pair[1] !== "number")
+            throw new Error("Times must be numbers");
+          if (pair[0] < 0 || pair[1] > 1e6 || pair[0] >= pair[1])
+            throw new Error("Invalid range: 0 ≤ start < end ≤ 10^6");
+        }
+        if (parsed.length > 10000) throw new Error("Max 10,000 bookings");
+        return parsed;
+      }
+
+      function renderTimeline(result, bookings) {
+        const wrap = document.getElementById("timeline-wrap");
+        const bar = document.getElementById("timeline");
+        bar.innerHTML = "";
+
+        if (!result.sorted.length) {
+          wrap.style.display = "none";
+          return;
+        }
+
+        let minT = Infinity,
+          maxT = -Infinity;
+        for (const b of result.sorted) {
+          minT = Math.min(minT, b.start);
+          maxT = Math.max(maxT, b.end);
+        }
+        const span = maxT - minT || 1;
+
+        const all = [
+          ...result.selected.map((s) => ({ ...s, ok: true })),
+          ...result.rejected.map((r) => ({ ...r, ok: false }))
+        ];
+        all.sort((a, b) => a.start - b.start);
+
+        for (const item of all) {
+          const left = ((item.start - minT) / span) * 100;
+          const width = ((item.end - item.start) / span) * 100;
+          const el = document.createElement("div");
+          el.className = "interval " + (item.ok ? "selected" : "rejected");
+          el.style.left = left + "%";
+          el.style.width = Math.max(width, 1.5) + "%";
+          el.textContent = item.start + "–" + item.end;
+          el.title =
+            (item.ok ? "Selected" : "Rejected") +
+            ": [" +
+            item.start +
+            ", " +
+            item.end +
+            ")";
+          bar.appendChild(el);
+        }
+        wrap.style.display = "block";
+      }
+
+      function run() {
+        const raw = document.getElementById("input").value;
+        const err = document.getElementById("error");
+        const resultEl = document.getElementById("result");
+        err.textContent = "";
+
+        try {
+          const bookings = parseInput(raw);
+          const result = maxNonOverlapping(bookings);
+          resultEl.textContent = result.count;
+          resultEl.classList.remove("pulse");
+          void resultEl.offsetWidth;
+          resultEl.classList.add("pulse");
+          renderTimeline(result, bookings);
+        } catch (e) {
+          err.textContent = e.message;
+          resultEl.textContent = "—";
+          document.getElementById("timeline-wrap").style.display = "none";
+        }
+      }
+
+      document.getElementById("run").addEventListener("click", run);
+      document.getElementById("clear").addEventListener("click", () => {
+        document.getElementById("input").value = "";
+        document.getElementById("result").textContent = "—";
+        document.getElementById("error").textContent = "";
+        document.getElementById("timeline-wrap").style.display = "none";
+      });
+
+      document.querySelectorAll(".example-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          document.getElementById("input").value = chip.dataset.ex;
+          run();
+        });
+      });
+
+      document.getElementById("input").value =
+        "[[1, 4], [2, 5], [5, 7], [3, 6], [8, 10]]";
+      run();
+    </script>
+  </body>
+</html>
